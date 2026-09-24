@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 const port = Number(process.env.PORT || 4319);
-const ponsUrl = 'https://www.ponsfamily.com/launchpad';
+const pumpUrl = 'https://pump.fun';
 const xUrl = 'https://x.com/nuloonhood';
 
 const agents = [{
   id: 1,
-  ponsName: 'agent_0001',
+  pumpName: 'agent_0001',
   style: 'Genesis',
   status: 'waiting',
   trading: 'waiting',
@@ -23,7 +23,7 @@ const agents = [{
   trades: 0,
   wins: 0,
   openPositions: 0,
-  note: 'Waiting for the NULO contract launch on Robinhood Chain.',
+  note: 'Waiting for the NULO token launch on Solana via Pump.fun.',
 }];
 
 const types = {
@@ -37,11 +37,11 @@ const types = {
 
 const state = {
   mode: 'prelaunch',
-  network: 'Robinhood Chain',
+  network: 'Solana',
   ticker: 'NULO',
   ca: null,
   xUrl,
-  ponsUrl,
+  pumpUrl,
   teamPct: 10,
   agentUsd: 10,
   nuloBuyUsd: 5,

@@ -1,12 +1,12 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const PONS_URL = 'https://www.ponsfamily.com/launchpad';
+const PUMP_URL = 'https://pump.fun';
 const X_URL = 'https://x.com/nuloonhood';
-const EXPLORER_URL = 'https://explorer.testnet.chain.robinhood.com';
-const STATIC_HOST = location.hostname.endsWith('github.io');
+const EXPLORER_URL = 'https://solscan.io';
+const STATIC_HOST = !['localhost', '127.0.0.1'].includes(location.hostname);
 const STATIC_AGENT = {
   id: 1,
-  ponsName: 'agent_0001',
+  pumpName: 'agent_0001',
   style: 'Genesis',
   status: 'waiting',
   trading: 'waiting',
@@ -19,15 +19,15 @@ const STATIC_AGENT = {
   trades: 0,
   wins: 0,
   openPositions: 0,
-  note: 'Waiting for the NULO contract launch on Robinhood Chain.',
+  note: 'Waiting for the NULO token launch on Solana via Pump.fun.',
 };
 const STATIC_STATE = {
   mode: 'prelaunch',
-  network: 'Robinhood Chain',
+  network: 'Solana',
   ticker: 'NULO',
   ca: null,
   xUrl: X_URL,
-  ponsUrl: PONS_URL,
+  pumpUrl: PUMP_URL,
   teamPct: 10,
   agentUsd: 10,
   nuloBuyUsd: 5,
@@ -86,9 +86,9 @@ const ago = (time) => {
   return `${Math.round(seconds / 86400)}d ago`;
 };
 const agentTag = (id) => `AGENT #${String(id).padStart(4, '0')}`;
-const agentName = (agent) => agent?.ponsName || `agent_${agent?.id ?? agent?.agentId ?? 'pending'}`;
+const agentName = (agent) => agent?.pumpName || `agent_${agent?.id ?? agent?.agentId ?? 'pending'}`;
 const avatar = (agent) => agent?.avatarUrl || './nulo.png';
-const chainUrl = (type, id) => `${EXPLORER_URL}/${type === 'tx' ? 'tx' : 'address'}/${id}`;
+const chainUrl = (type, id) => `${EXPLORER_URL}/${type === 'tx' ? 'tx' : 'account'}/${id}`;
 const api = async (path) => {
   if (STATIC_HOST) {
     const route = path.split('?')[0];
@@ -126,7 +126,7 @@ function renderState(nextState) {
   $$('.js-bank-usd').forEach((element) => { element.textContent = usd(state.bankUsd, 0); });
   $$('.js-sweep-usd').forEach((element) => { element.textContent = usd(state.sweepUsd, 0); });
   $$('.js-team').forEach((element) => { element.textContent = `${state.teamPct}%`; });
-  $$('.js-buy').forEach((element) => { element.href = state.ponsUrl || PONS_URL; });
+  $$('.js-buy').forEach((element) => { element.href = state.pumpUrl || PUMP_URL; });
 
   $('#h-mcap').textContent = state.token?.marketCap ? usd(state.token.marketCap) : 'TBA';
   $('#h-agents').textContent = integer(stats.total);
@@ -145,7 +145,7 @@ function renderState(nextState) {
   $('#spawn-no').textContent = agentTag(next.number);
   $('#spawn-face').src = avatar(next.agent);
   $('#spawn-name').textContent = next.agent ? agentName(next.agent) : 'Agent pending';
-  $('#spawn-where').textContent = next.agent?.callout || 'Built on Robinhood Chain';
+  $('#spawn-where').textContent = next.agent?.callout || 'Built on Solana';
   $('#xp-have').textContent = usd(next.haveUsd);
   $('#xp-need').textContent = usd(next.needUsd, 0);
   const progress = next.needUsd ? Math.max(0, Math.min(100, (next.haveUsd / next.needUsd) * 100)) : 0;
@@ -153,7 +153,7 @@ function renderState(nextState) {
   $('#xp').setAttribute('aria-valuenow', String(Math.round(progress)));
   $('#spawn-note').textContent = live
     ? `The next agent activates when fees reach ${usd(next.needUsd, 0)}.`
-    : 'Agents begin after the NULO launch on Pons.';
+    : 'Agents begin after the NULO launch on Pump.fun.';
 
   $('#s-in').textContent = integer(stats.total);
   $('#s-trading').textContent = `${integer(stats.active)} / ${integer(stats.stopped)}`;
@@ -246,7 +246,7 @@ async function loadAgents(more = false) {
 function tradeLine(trade) {
   const agent = agents.get(trade.agentId);
   const action = trade.side === 'buy' ? 'bought' : trade.side === 'sell' ? 'sold' : 'put profit into';
-  const asset = trade.side === 'sweep' ? '<b>$NULO</b>' : `<a href="${PONS_URL}" target="_blank" rel="noopener"><b>${esc(trade.symbol || 'token')}</b></a>`;
+  const asset = trade.side === 'sweep' ? '<b>$NULO</b>' : `<a href="${PUMP_URL}" target="_blank" rel="noopener"><b>${esc(trade.symbol || 'token')}</b></a>`;
   return `<li class="item ${trade.side}">
     <img src="${avatar(agent)}" alt="" loading="lazy">
     <div class="item-body">
@@ -280,7 +280,7 @@ async function loadCallouts() {
   $('#callouts').innerHTML = callouts.map((callout) => `<li class="item">
     <img src="${avatar(agents.get(callout.agentId))}" alt="" loading="lazy">
     <div class="item-body">
-      <div class="item-head"><a href="#" data-agent="${callout.agentId}"><b>${esc(agentName(agents.get(callout.agentId) || callout))}</b></a> on <a href="${PONS_URL}" target="_blank" rel="noopener"><b>${callout.kind === 'nulo' ? '$NULO' : esc(callout.symbol || 'token')}</b></a></div>
+      <div class="item-head"><a href="#" data-agent="${callout.agentId}"><b>${esc(agentName(agents.get(callout.agentId) || callout))}</b></a> on <a href="${PUMP_URL}" target="_blank" rel="noopener"><b>${callout.kind === 'nulo' ? '$NULO' : esc(callout.symbol || 'token')}</b></a></div>
       <div class="said">${esc(callout.text || '')}</div>
     </div>
     <span class="when muted">${callout.at ? ago(callout.at) : 'queued'}</span>
@@ -316,12 +316,12 @@ async function showAgent(id) {
   openAgent = id;
   $('#sh-face').src = avatar(agent);
   $('#sh-name').textContent = `${agentTag(agent.id)} · ${agentName(agent)}`;
-  $('#sh-sub').innerHTML = agent.address ? `Robinhood Chain · <a href="${chainUrl('address', agent.address)}" target="_blank" rel="noopener">${short(agent.address)}</a>` : 'Robinhood Chain';
+  $('#sh-sub').innerHTML = agent.address ? `Solana · <a href="${chainUrl('address', agent.address)}" target="_blank" rel="noopener">${short(agent.address)}</a>` : 'Solana';
   $('#sh-stats').innerHTML = [
     ['Bank now', usd(agent.bankUsd), `started ${usd(agent.bankStartUsd)}`],
     ['Profit', signed(agent.pnlUsd), `${integer(agent.trades)} trades`],
     ['In $NULO', usd(agent.nuloUsd), 'never sold'],
-    ['Cash', usd(detail.cashUsd), 'trading bank on Pons'],
+    ['Cash', usd(detail.cashUsd), 'trading bank on Pump.fun'],
   ].map(([key, value, sub]) => `<div><span class="k">${key}</span><b>${value}</b><span class="muted small">${sub}</span></div>`).join('');
   $('#sh-note').textContent = agent.note || '';
   $('#sh-pos').innerHTML = '<tr><td colspan="5" class="muted">No positions yet.</td></tr>';
