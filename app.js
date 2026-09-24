@@ -1,6 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const PUMP_URL = 'https://pump.fun';
+const CONTRACT_ADDRESS = '3KuXbr6QYyKmbBQSCMCyze8dBrQSeWgYzqy8bC9Jpump';
+const PUMP_URL = `https://pump.fun/coin/${CONTRACT_ADDRESS}`;
 const X_URL = 'https://x.com/nuloonhood';
 const EXPLORER_URL = 'https://solscan.io';
 const STATIC_HOST = !['localhost', '127.0.0.1'].includes(location.hostname);
@@ -25,7 +26,7 @@ const STATIC_STATE = {
   mode: 'prelaunch',
   network: 'Solana',
   ticker: 'NULO',
-  ca: null,
+  ca: CONTRACT_ADDRESS,
   xUrl: X_URL,
   pumpUrl: PUMP_URL,
   teamPct: 10,
@@ -134,6 +135,8 @@ function renderState(nextState) {
   $('#live-dot').classList.toggle('on', live);
   $('#h-mode-text').textContent = live ? 'Live' : 'Launching soon';
   $('#ca-text').textContent = state.ca || 'TBA';
+  $('#ca').disabled = !state.ca;
+  $('#ca').title = state.ca ? 'Copy contract address' : 'Contract address to be announced';
   $('#x-link').href = state.xUrl || X_URL;
   $('#b-x').href = state.xUrl || X_URL;
 
@@ -360,6 +363,13 @@ $$('#board-sort button').forEach((button) => button.addEventListener('click', ()
 }));
 $('#town-more').addEventListener('click', () => loadAgents(true));
 $('#holders-more').addEventListener('click', () => loadHolders(true));
+$('#ca').addEventListener('click', async () => {
+  if (!state?.ca) return;
+  await navigator.clipboard.writeText(state.ca);
+  const label = $('#ca-text');
+  label.textContent = 'COPIED';
+  setTimeout(() => { label.textContent = state.ca; }, 1200);
+});
 
 if (location.hash && $(`#pane-${location.hash.slice(1)}`)) openTab(location.hash.slice(1));
 

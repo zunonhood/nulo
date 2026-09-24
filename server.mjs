@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 const port = Number(process.env.PORT || 4319);
-const pumpUrl = 'https://pump.fun';
+const contractAddress = '3KuXbr6QYyKmbBQSCMCyze8dBrQSeWgYzqy8bC9Jpump';
+const pumpUrl = `https://pump.fun/coin/${contractAddress}`;
 const xUrl = 'https://x.com/nuloonhood';
 
 const agents = [{
@@ -39,7 +40,7 @@ const state = {
   mode: 'prelaunch',
   network: 'Solana',
   ticker: 'NULO',
-  ca: null,
+  ca: contractAddress,
   xUrl,
   pumpUrl,
   teamPct: 10,
